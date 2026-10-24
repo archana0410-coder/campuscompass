@@ -1,0 +1,1019 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusCompass Admin Portal</title>
+    <style>
+        :root {
+            --burgundy: #741d35;
+            --dark: #4e1023;
+            --light: #f7e9ed;
+            --bg: #f7f5f6;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: var(--bg);
+            color: #30252a;
+        }
+        button, input, select, textarea { font: inherit; }
+        button {
+            cursor: pointer;
+            border: 0;
+            border-radius: 7px;
+            padding: 10px 14px;
+        }
+        .primary { background: var(--burgundy); color: white; }
+        .secondary { background: var(--light); color: var(--burgundy); }
+        input, select, textarea {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ddd;
+            border-radius: 7px;
+            background: white;
+        }
+        .hidden { display: none !important; }
+
+        /* LOGIN */
+        #login {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--dark), #a33d5b);
+            padding: 20px;
+        }
+        .login-card {
+            background: white;
+            padding: 35px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 420px;
+        }
+        .login-card h1 { color: var(--burgundy); }
+        .field { margin: 16px 0; }
+        .field label {
+            display: block;
+            margin-bottom: 7px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .login-card button { width: 100%; }
+        .hint { font-size: 12px; color: #777; margin-top: 15px; }
+
+        /* LAYOUT */
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: 235px;
+            background: var(--dark);
+            color: white;
+            padding: 22px 14px;
+            overflow-y: auto;
+        }
+        .brand {
+            font-size: 21px;
+            font-weight: bold;
+            padding: 10px;
+            margin-bottom: 25px;
+        }
+        .sidebar button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            color: white;
+            margin: 5px 0;
+            padding: 13px;
+        }
+        .sidebar button:hover,
+        .sidebar button.active { background: #ffffff20; }
+        .sidebar small {
+            display: block;
+            color: #e5c4ce;
+            margin: 20px 10px 8px;
+        }
+        .main { margin-left: 235px; }
+        .topbar {
+            background: white;
+            padding: 20px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+        .topbar h2 { margin: 0; color: var(--burgundy); }
+        .content { padding: 25px; }
+        .welcome {
+            background: var(--burgundy);
+            color: white;
+            padding: 25px;
+            border-radius: 13px;
+            margin-bottom: 22px;
+        }
+        .welcome h1 { margin-top: 0; }
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+        .card, .panel, .info-card {
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 18px;
+        }
+        .card h2 { color: var(--burgundy); font-size: 28px; }
+        .card p { color: #777; font-size: 13px; }
+        .panel { margin-bottom: 20px; }
+        .panel h3 { color: var(--burgundy); }
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .toolbar input { flex: 1; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+        th { background: var(--light); color: var(--burgundy); }
+        .table-wrap { overflow-x: auto; border-radius: 10px; }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        .info-card h3 { color: var(--burgundy); }
+        .notice {
+            padding: 14px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .notice:last-child { border: 0; }
+        .notice h4 { margin: 0 0 7px; }
+        .notice p { color: #777; font-size: 13px; }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .form-grid .field { margin: 5px 0; }
+        .full { grid-column: 1 / -1; }
+        .modal-bg {
+            position: fixed;
+            inset: 0;
+            background: #0008;
+            display: grid;
+            place-items: center;
+            padding: 15px;
+            z-index: 10;
+        }
+        .modal {
+            background: white;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px;
+            border-radius: 13px;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 18px;
+        }
+        #message { color: #b42332; font-size: 13px; }
+        @media(max-width:950px) {
+            .cards { grid-template-columns: repeat(2, 1fr); }
+            .info-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media(max-width:650px) {
+            .sidebar { width: 65px; padding: 10px 5px; }
+            .brand { font-size: 0; padding: 10px 3px; }
+            .brand:after { content: "CC"; font-size: 18px; }
+            .sidebar small { display: none; }
+            .sidebar button { font-size: 0; text-align: center; padding: 13px 2px; }
+            .sidebar button:before { font-size: 17px; }
+            .sidebar button[data-page="dashboard"]:before { content: "▦"; }
+            .sidebar button[data-page="documents"]:before { content: "▤"; }
+            .sidebar button[data-page="syllabus"]:before { content: "📚"; }
+            .sidebar button[data-page="announcements"]:before { content: "◉"; }
+            .sidebar button[data-page="timetable"]:before { content: "▦"; }
+            .sidebar button[data-page="information"]:before { content: "⌂"; }
+            .sidebar button[data-page="hostel"]:before { content: "🏠"; }
+            .sidebar button[data-page="logout"]:before { content: "↪"; }
+            .main { margin-left: 65px; }
+            .content { padding: 12px; }
+            .topbar { padding: 15px; }
+            .cards { gap: 8px; }
+            .card { padding: 12px; }
+            .info-grid { grid-template-columns: 1fr; }
+            .toolbar { flex-direction: column; }
+            .form-grid { grid-template-columns: 1fr; }
+            .full { grid-column: auto; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<section id="login">
+    <div class="login-card">
+        <h1>⌖ CampusCompass</h1>
+        <p>Your intelligent campus information portal</p>
+        <h2>Admin Login</h2>
+        <form id="loginForm">
+            <div class="field">
+                <label>Username</label>
+                <input id="username" value="admin" required>
+            </div>
+            <div class="field">
+                <label>Password</label>
+                <input id="password" type="password"
+                       value="campus123" required>
+            </div>
+            <p id="message"></p>
+            <button class="primary">Enter CampusCompass →</button>
+        </form>
+        <p class="hint">
+            Demo username: admin<br>
+            Demo password: campus123<br>
+            This demonstration login is not secure authentication.
+        </p>
+    </div>
+</section>
+
+<!-- ADMIN APPLICATION -->
+<div id="app" class="hidden">
+    <aside class="sidebar">
+        <div class="brand">⌖ CampusCompass</div>
+        <small>MAIN MENU</small>
+        <button class="active" data-page="dashboard">Dashboard</button>
+        <button data-page="documents">Documents</button>
+        <button data-page="syllabus">Syllabus Sem 1–8</button>
+        <button data-page="announcements">Announcements</button>
+        <button data-page="timetable">Timetable</button>
+        <small>CAMPUS</small>
+        <button data-page="information">Campus Information</button>
+        <button data-page="hostel">Hostel & Accommodation</button>
+        <small>ACCOUNT</small>
+        <button data-page="logout">Sign Out</button>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <h2 id="pageTitle">Dashboard</h2>
+            <strong>Administrator</strong>
+        </header>
+        <div class="content" id="content"></div>
+    </main>
+</div>
+
+<!-- ADD DOCUMENT / ANNOUNCEMENT MODAL -->
+<div id="modalRoot"></div>
+
+<script>
+    const departments = [
+        "CSE", "IT", "ECE", "EEE", "Mechanical Engineering",
+        "Civil Engineering", "AI & Data Science",
+        "Printing & Packaging Technology", "Geo-Informatics"
+    ];
+
+    const semesters = Array.from(
+        {length: 8}, (_, i) => "Semester " + (i + 1)
+    );
+
+    const categories = [
+        "Syllabus", "Timetable", "Announcement",
+        "Campus Information", "Hostel",
+        "Academic Calendar", "Exam Notice", "Other"
+    ];
+
+    let documents = [
+        {
+            id:"CC-1001",
+            title:"CSE Semester 3 Syllabus",
+            category:"Syllabus",
+            department:"CSE",
+            semester:"Semester 3",
+            description:"Sample syllabus. Replace with the official document.",
+            date:"2026-10-24",
+            file:"",
+            status:"Published"
+        },
+        {
+            id:"CC-1002",
+            title:"Internal Assessment Timetable",
+            category:"Timetable",
+            department:"All Departments",
+            semester:"All Semesters",
+            description:"Sample timetable notification.",
+            date:"2026-10-24",
+            file:"",
+            status:"Published"
+        },
+        {
+            id:"CC-1003",
+            title:"Library User Guide",
+            category:"Campus Information",
+            department:"All Departments",
+            semester:"All Semesters",
+            description:"Library rules and student services.",
+            date:"2026-10-23",
+            file:"",
+            status:"Published"
+        },
+        {
+            id:"CC-1004",
+            title:"Hostel Accommodation Guidelines",
+            category:"Hostel",
+            department:"All Departments",
+            semester:"All Semesters",
+            description:"Sample hostel information.",
+            date:"2026-10-22",
+            file:"",
+            status:"Published"
+        }
+    ];
+
+    let announcements = [
+        ["Time table released for upcoming assessment",
+            "Timetable", "2026-10-24"],
+        ["Semester syllabus documents updated",
+            "Academic", "2026-10-23"],
+        ["Library working hours reminder",
+            "Campus", "2026-10-22"],
+        ["Hostel accommodation application information",
+            "Hostel", "2026-10-21"],
+        ["Project review schedule notice",
+            "Academic", "2026-10-20"],
+        ["Laboratory safety reminder",
+            "Campus", "2026-10-19"],
+        ["Internal assessment preparation notice",
+            "Exam", "2026-10-18"],
+        ["Sports and student activities update",
+            "Events", "2026-10-17"],
+        ["Fee payment deadline reminder",
+            "Administration", "2026-10-16"],
+        ["Transport route information updated",
+            "Transport", "2026-10-15"],
+        ["Student ID card help desk",
+            "Administration", "2026-10-14"],
+        ["Department seminar announcement",
+            "Events", "2026-10-13"]
+    ].map((n, i) => ({
+        id:"AN-" + (201+i),
+        title:n[0],
+        category:n[1],
+        date:n[2],
+        description:"Please confirm details with the official college office."
+    }));
+
+    const campusInfo = [
+        ["Library","📚","Books, reading spaces and digital resources."],
+        ["Academic Departments","🎓","Academic guidance and faculty support."],
+        ["Computer Laboratories","💻","Computing facilities for practical sessions."],
+        ["Auditorium","🏛️","Seminars, presentations and college events."],
+        ["College Canteen","☕","Dining facilities and refreshments."],
+        ["Transport Services","🚌","Contact the transport office for bus routes."],
+        ["Health Centre","✚","Campus health and student welfare support."],
+        ["Sports Facilities","⚽","Sports grounds and activity facilities."],
+        ["Placement Cell","💼","Career guidance and placement updates."],
+        ["Student Clubs","🎭","Technical, cultural and student activities."],
+        ["Wi-Fi and IT Help","📶","Network access and IT support."],
+        ["Examination Cell","📝","Exam schedules and examination guidance."],
+        ["Administrative Office","🏢","Administrative student services."],
+        ["Research Centre","🔬","Research and project guidance."],
+        ["Accessibility Support","♿","Ask student affairs about available support."]
+    ];
+
+    const hostelInfo = [
+        ["Hostel Application","📝","Ask the hostel office about eligibility and deadlines."],
+        ["Room Allocation","🛏️","Room allotment depends on availability."],
+        ["Hostel Fees","₹","Confirm current fees with hostel administration."],
+        ["Mess and Dining","🍽️","Check the hostel notice board for meal timings."],
+        ["Visitor Rules","👥","Follow the official hostel visitor policy."],
+        ["In-time and Attendance","🕘","Confirm the current hostel rules."],
+        ["Laundry Facilities","🧺","Ask about laundry timings and charges."],
+        ["Maintenance Requests","🔧","Report repairs to the hostel supervisor."],
+        ["Study Spaces","📖","Check the rules for quiet study areas."],
+        ["Safety and Emergency","🛟","Contact campus staff for urgent assistance."],
+        ["Leave and Outing","📋","Follow the official leave request process."],
+        ["Hostel Contact Desk","☎️","Contact the hostel office for verified details."]
+    ];
+
+    let currentPage = "dashboard";
+    let searchText = "";
+
+    function $(id) {
+        return document.getElementById(id);
+    }
+
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, ch => ({
+            "&":"&amp;", "<":"&lt;", ">":"&gt;",
+            '"':"&quot;", "'":"&#39;"
+        })[ch]);
+    }
+
+    function dateText(date) {
+        return new Date(date + "T00:00:00").toLocaleDateString(
+            "en-IN", {day:"2-digit", month:"short", year:"numeric"}
+        );
+    }
+
+    $("loginForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        if ($("username").value === "admin" &&
+            $("password").value === "campus123") {
+            $("login").classList.add("hidden");
+            $("app").classList.remove("hidden");
+            renderPage("dashboard");
+        } else {
+            $("message").textContent = "Incorrect username or password.";
+        }
+    });
+
+    document.querySelectorAll("[data-page]").forEach(button => {
+        button.addEventListener("click", () => {
+            const page = button.dataset.page;
+
+            if (page === "logout") {
+                $("app").classList.add("hidden");
+                $("login").classList.remove("hidden");
+                $("password").value = "";
+            } else {
+                renderPage(page);
+            }
+        });
+    });
+
+    function renderPage(page) {
+        currentPage = page;
+        searchText = "";
+
+        document.querySelectorAll("[data-page]").forEach(button => {
+            button.classList.toggle("active", button.dataset.page === page);
+        });
+
+        const titles = {
+            dashboard:"Dashboard Overview",
+            documents:"Document Management",
+            syllabus:"Syllabus Library",
+            announcements:"Announcements",
+            timetable:"Timetable Centre",
+            information:"Campus Information",
+            hostel:"Hostel & Accommodation"
+        };
+
+        $("pageTitle").textContent = titles[page];
+
+        const pages = {
+            dashboard:dashboardPage,
+            documents:documentsPage,
+            syllabus:syllabusPage,
+            announcements:announcementsPage,
+            timetable:timetablePage,
+            information:informationPage,
+            hostel:hostelPage
+        };
+
+        $("content").innerHTML = pages[page]();
+        bindActions();
+    }
+
+    function dashboardPage() {
+        return `
+    <div class="welcome">
+      <h1>Welcome, Administrator 👋</h1>
+      <p>Manage campus resources from one place.</p>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h2>${documents.length}</h2>
+        <p>Total Documents</p>
+      </div>
+      <div class="card">
+        <h2>${announcements.length}</h2>
+        <p>Announcements</p>
+      </div>
+      <div class="card">
+        <h2>${departments.length}</h2>
+        <p>Departments</p>
+      </div>
+      <div class="card">
+        <h2>8</h2>
+        <p>Syllabus Semesters</p>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Quick Actions</h3>
+      <button class="primary" data-action="add-doc">+ Add Document</button>
+      <button class="secondary" data-page="syllabus">View Syllabus</button>
+      <button class="secondary" data-action="add-notice">Post Announcement</button>
+      <button class="secondary" data-page="timetable">Timetable</button>
+    </div>
+
+    <div class="panel">
+      <h3>Recent Documents</h3>
+      ${documents.slice(0,5).map(d => `
+        <div class="notice">
+          <h4>${escapeHTML(d.title)}</h4>
+          <p>${escapeHTML(d.category)} · ${escapeHTML(d.department)}
+          · ${dateText(d.date)}</p>
+        </div>
+      `).join("")}
+    </div>
+
+    <div class="panel">
+      <h3>Latest Announcements</h3>
+      ${announcements.slice(0,5).map(noticeHTML).join("")}
+    </div>
+  `;
+    }
+
+    function documentsPage() {
+        const list = documents.filter(d =>
+            [d.id,d.title,d.category,d.department,d.description]
+                .join(" ").toLowerCase().includes(searchText.toLowerCase())
+        );
+
+        return `
+    <div class="panel">
+      <h3>Manage Documents</h3>
+      <button class="primary" data-action="add-doc">+ Add Document</button>
+      <div class="toolbar">
+        <input id="searchBox" placeholder="Search by ID, title, category..."
+          value="${escapeHTML(searchText)}">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>ID</th><th>Document</th><th>Department</th>
+            <th>Semester</th><th>Category</th><th>Actions</th>
+          </tr></thead>
+          <tbody>
+          ${list.length ? list.map(d => `
+            <tr>
+              <td>${escapeHTML(d.id)}</td>
+              <td>${escapeHTML(d.title)}</td>
+              <td>${escapeHTML(d.department)}</td>
+              <td>${escapeHTML(d.semester)}</td>
+              <td>${escapeHTML(d.category)}</td>
+              <td>
+                <button class="secondary" data-view="${escapeHTML(d.id)}">View</button>
+                <button class="secondary" data-delete="${escapeHTML(d.id)}">Delete</button>
+              </td>
+            </tr>
+          `).join("") : `<tr><td colspan="6">No documents found.</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+      <p class="hint">File names are recorded in this demo; actual file storage needs a backend.</p>
+    </div>
+  `;
+    }
+
+    function syllabusPage() {
+        return `
+    <div class="welcome">
+      <h1>Semester 1–8 Syllabus</h1>
+      <p>Select a department to browse its syllabus records.</p>
+    </div>
+    <div class="panel">
+      <button class="primary" data-action="add-syllabus">+ Add Syllabus</button>
+      <div class="info-grid">
+      ${departments.map((d,i) => `
+        <div class="info-card">
+          <h3>${["💻","🖥️","📡","⚡","⚙️","🏗️","🤖","🖨️","🗺️"][i]} ${escapeHTML(d)}</h3>
+          <p>Semesters 1–8</p>
+          <select id="sem-${i}">
+            ${semesters.map(s=>`<option>${s}</option>`).join("")}
+          </select>
+          <button class="primary" style="margin-top:10px"
+            data-open-syllabus="${i}">View Syllabus</button>
+        </div>
+      `).join("")}
+      </div>
+    </div>
+    <div class="panel" id="syllabusResults">
+      <h3>Syllabus Documents</h3>
+      <p>Select a department and semester above.</p>
+    </div>
+  `;
+    }
+
+    function announcementsPage() {
+        return `
+    <div class="panel">
+      <h3>Campus Announcements</h3>
+      <button class="primary" data-action="add-notice">+ Add Announcement</button>
+      <div class="toolbar">
+        <input id="noticeSearch" placeholder="Search announcements...">
+      </div>
+      <div id="noticeResults">
+        ${announcements.map(noticeHTML).join("")}
+      </div>
+    </div>
+  `;
+    }
+
+    function noticeHTML(n) {
+        return `
+    <div class="notice">
+      <h4>${escapeHTML(n.title)}</h4>
+      <p>${escapeHTML(n.description || "Please check the official notice for details.")}</p>
+      <small>${escapeHTML(n.category)} · ${dateText(n.date)}</small>
+    </div>
+  `;
+    }
+
+    function timetablePage() {
+        const list = documents.filter(d => d.category === "Timetable");
+
+        return `
+    <div class="welcome">
+      <h1>Timetable Centre</h1>
+      <p>View and add official timetable documents.</p>
+      <button class="primary" data-action="add-timetable">+ Add Timetable</button>
+    </div>
+    <div class="panel">
+      <h3>Timetable Documents</h3>
+      ${list.length ? list.map(d => `
+        <div class="notice">
+          <h4>${escapeHTML(d.title)}</h4>
+          <p>${escapeHTML(d.department)} · ${escapeHTML(d.semester)}</p>
+          <button class="secondary" data-view="${escapeHTML(d.id)}">View</button>
+        </div>
+      `).join("") : "<p>No timetables added yet.</p>"}
+    </div>
+  `;
+    }
+
+    function informationPage() {
+        return `
+    <div class="welcome">
+      <h1>Campus Information</h1>
+      <p>Useful college services and facilities.</p>
+    </div>
+    <div class="toolbar">
+      <input id="infoSearch" placeholder="Search campus services...">
+    </div>
+    <div class="info-grid" id="infoGrid">
+      ${campusInfo.map(item => `
+        <div class="info-card" data-search="${escapeHTML(item.join(" "))}">
+          <h3>${item[1]} ${escapeHTML(item[0])}</h3>
+          <p>${escapeHTML(item[2])}</p>
+        </div>
+      `).join("")}
+    </div>
+  `;
+    }
+
+    function hostelPage() {
+        return `
+    <div class="welcome">
+      <h1>Hostel & Accommodation</h1>
+      <p>Student accommodation information and services.</p>
+      <button class="primary" data-action="add-hostel">+ Add Hostel Document</button>
+    </div>
+    <div class="toolbar">
+      <input id="hostelSearch" placeholder="Search hostel information...">
+    </div>
+    <div class="info-grid" id="hostelGrid">
+      ${hostelInfo.map(item => `
+        <div class="info-card" data-search="${escapeHTML(item.join(" "))}">
+          <h3>${item[1]} ${escapeHTML(item[0])}</h3>
+          <p>${escapeHTML(item[2])}</p>
+        </div>
+      `).join("")}
+    </div>
+    <div class="panel">
+      <h3>Hostel Documents</h3>
+      ${documents.filter(d => d.category === "Hostel").map(d => `
+        <div class="notice">
+          <h4>${escapeHTML(d.title)}</h4>
+          <p>${escapeHTML(d.description)}</p>
+          <button class="secondary" data-view="${escapeHTML(d.id)}">View</button>
+        </div>
+      `).join("")}
+    </div>
+    <p class="hint">Replace sample information with verified hostel office details.</p>
+  `;
+    }
+
+    function bindActions() {
+        document.querySelectorAll("[data-page]").forEach(button => {
+            button.onclick = () => {
+                const page = button.dataset.page;
+                if (page === "logout") {
+                    $("app").classList.add("hidden");
+                    $("login").classList.remove("hidden");
+                } else {
+                    renderPage(page);
+                }
+            };
+        });
+
+        document.querySelectorAll("[data-action]").forEach(button => {
+            button.onclick = () => {
+                const action = button.dataset.action;
+                if (action === "add-doc") openDocumentForm();
+                if (action === "add-syllabus") openDocumentForm({
+                    category:"Syllabus"
+                });
+                if (action === "add-timetable") openDocumentForm({
+                    category:"Timetable"
+                });
+                if (action === "add-hostel") openDocumentForm({
+                    category:"Hostel"
+                });
+                if (action === "add-notice") openAnnouncementForm();
+            };
+        });
+
+        const search = $("searchBox");
+        if (search) search.oninput = () => {
+            const position = search.selectionStart;
+            searchText = search.value;
+            const content = $("content");
+            content.innerHTML = documentsPage();
+            bindActions();
+            $("searchBox").focus();
+            $("searchBox").setSelectionRange(position, position);
+        };
+
+        const noticeSearch = $("noticeSearch");
+        if (noticeSearch) noticeSearch.oninput = () => {
+            const q = noticeSearch.value.toLowerCase();
+            $("noticeResults").innerHTML = announcements
+                .filter(n => (n.title + " " + n.category + " " + n.description)
+                    .toLowerCase().includes(q))
+                .map(noticeHTML).join("") || "<p>No matching announcements.</p>";
+        };
+
+        ["infoGrid","hostelGrid"].forEach(id => {
+            const input = $(id === "infoGrid" ? "infoSearch" : "hostelSearch");
+            if (input) input.oninput = () => {
+                document.querySelectorAll("#" + id + " [data-search]").forEach(card => {
+                    card.classList.toggle("hidden",
+                        !card.dataset.search.toLowerCase().includes(input.value.toLowerCase()));
+                });
+            };
+        });
+
+        document.querySelectorAll("[data-view]").forEach(button => {
+            button.onclick = () => viewDocument(button.dataset.view);
+        });
+
+        document.querySelectorAll("[data-delete]").forEach(button => {
+            button.onclick = () => {
+                const id = button.dataset.delete;
+                const doc = documents.find(d => d.id === id);
+                if (doc && confirm("Delete " + doc.title + "?")) {
+                    documents = documents.filter(d => d.id !== id);
+                    renderPage(currentPage);
+                }
+            };
+        });
+
+        document.querySelectorAll("[data-open-syllabus]").forEach(button => {
+            button.onclick = () => {
+                const i = Number(button.dataset.openSyllabus);
+                const department = departments[i];
+                const semester = $("sem-" + i).value;
+                const list = documents.filter(d =>
+                    d.category === "Syllabus" &&
+                    (d.department === department || d.department === "All Departments") &&
+                    (d.semester === semester || d.semester === "All Semesters")
+                );
+                $("syllabusResults").innerHTML = `
+        <h3>${escapeHTML(department)} · ${escapeHTML(semester)}</h3>
+        ${list.length ? list.map(d => `
+          <div class="notice">
+            <h4>${escapeHTML(d.title)}</h4>
+            <p>${escapeHTML(d.description)}</p>
+            <button class="secondary" data-view="${escapeHTML(d.id)}">View</button>
+          </div>
+        `).join("") : "<p>No syllabus record found. Use Add Syllabus to create one.</p>"}
+      `;
+                $("syllabusResults").querySelectorAll("[data-view]").forEach(b => {
+                    b.onclick = () => viewDocument(b.dataset.view);
+                });
+            };
+        });
+    }
+
+    function openDocumentForm(defaults = {}) {
+        const nextId = "CC-" + (1001 + documents.length);
+
+        $("modalRoot").innerHTML = `
+    <div class="modal-bg" id="modalBg">
+      <div class="modal">
+        <h2 style="color:var(--burgundy)">Add Document</h2>
+        <form id="documentForm">
+          <div class="form-grid">
+            <div class="field">
+              <label>Document ID *</label>
+              <input name="id" value="${nextId}" required>
+            </div>
+            <div class="field">
+              <label>Category *</label>
+              <select name="category">
+                ${categories.map(c => `
+                  <option ${defaults.category === c ? "selected" : ""}>${c}</option>
+                `).join("")}
+              </select>
+            </div>
+            <div class="field full">
+              <label>Document Title *</label>
+              <input name="title" required placeholder="Enter document title">
+            </div>
+            <div class="field">
+              <label>Department</label>
+              <select name="department">
+                <option>All Departments</option>
+                ${departments.map(d => `
+                  <option ${defaults.department === d ? "selected" : ""}>${escapeHTML(d)}</option>
+                `).join("")}
+              </select>
+            </div>
+            <div class="field">
+              <label>Semester</label>
+              <select name="semester">
+                <option>All Semesters</option>
+                ${semesters.map(s => `
+                  <option ${defaults.semester === s ? "selected" : ""}>${s}</option>
+                `).join("")}
+              </select>
+            </div>
+            <div class="field">
+              <label>Upload Date</label>
+              <input name="date" type="date" value="${new Date().toISOString().slice(0,10)}">
+            </div>
+            <div class="field">
+              <label>Status</label>
+              <select name="status">
+                <option>Published</option>
+                <option>Draft</option>
+              </select>
+            </div>
+            <div class="field full">
+              <label>Description / Additional Details</label>
+              <textarea name="description" rows="3"></textarea>
+            </div>
+            <div class="field full">
+              <label>Select File (optional)</label>
+              <input name="file" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt">
+              <small class="hint">Demo only: the filename is recorded, not uploaded.</small>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="secondary" id="cancelModal">Cancel</button>
+            <button class="primary">Save Document</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+
+        $("cancelModal").onclick = closeModal;
+
+        $("documentForm").onsubmit = event => {
+            event.preventDefault();
+            const form = new FormData(event.target);
+            const id = String(form.get("id")).trim();
+
+            if (documents.some(d => d.id.toLowerCase() === id.toLowerCase())) {
+                alert("This document ID already exists. Use a unique ID.");
+                return;
+            }
+
+            const file = event.target.elements.file.files[0];
+
+            documents.unshift({
+                id,
+                title: String(form.get("title")).trim(),
+                category: form.get("category"),
+                department: form.get("department"),
+                semester: form.get("semester"),
+                date: form.get("date") || new Date().toISOString().slice(0,10),
+                description: String(form.get("description")).trim(),
+                file: file ? file.name : "",
+                status: form.get("status")
+            });
+
+            closeModal();
+            renderPage(currentPage);
+            alert("Document record added successfully!");
+        };
+    }
+
+    function openAnnouncementForm() {
+        $("modalRoot").innerHTML = `
+    <div class="modal-bg">
+      <div class="modal">
+        <h2 style="color:var(--burgundy)">Post Announcement</h2>
+        <form id="announcementForm">
+          <div class="field">
+            <label>Announcement Title *</label>
+            <input name="title" required placeholder="e.g. Timetable released">
+          </div>
+          <div class="field">
+            <label>Category</label>
+            <select name="category">
+              <option>Timetable</option>
+              <option>Academic</option>
+              <option>Campus</option>
+              <option>Hostel</option>
+              <option>Exam</option>
+              <option>Events</option>
+              <option>Administration</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Date</label>
+            <input name="date" type="date"
+              value="${new Date().toISOString().slice(0,10)}">
+          </div>
+          <div class="field">
+            <label>Announcement Details *</label>
+            <textarea name="description" rows="4" required></textarea>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="secondary" id="cancelModal">Cancel</button>
+            <button class="primary">Publish</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+
+        $("cancelModal").onclick = closeModal;
+
+        $("announcementForm").onsubmit = event => {
+            event.preventDefault();
+            const form = new FormData(event.target);
+
+            announcements.unshift({
+                id:"AN-" + (201 + announcements.length),
+                title:String(form.get("title")).trim(),
+                category:form.get("category"),
+                date:form.get("date") || new Date().toISOString().slice(0,10),
+                description:String(form.get("description")).trim()
+            });
+
+            closeModal();
+            renderPage("announcements");
+            alert("Announcement published in this demo.");
+        };
+    }
+
+    function viewDocument(id) {
+        const d = documents.find(doc => doc.id === id);
+        if (!d) return;
+
+        $("modalRoot").innerHTML = `
+    <div class="modal-bg">
+      <div class="modal">
+        <h2 style="color:var(--burgundy)">Document Details</h2>
+        <p><b>ID:</b> ${escapeHTML(d.id)}</p>
+        <p><b>Title:</b> ${escapeHTML(d.title)}</p>
+        <p><b>Category:</b> ${escapeHTML(d.category)}</p>
+        <p><b>Department:</b> ${escapeHTML(d.department)}</p>
+        <p><b>Semester:</b> ${escapeHTML(d.semester)}</p>
+        <p><b>Description:</b> ${escapeHTML(d.description)}</p>
+        <p><b>File:</b> ${escapeHTML(d.file || "No file attached")}</p>
+        <p><b>Date:</b> ${dateText(d.date)}</p>
+        <p><b>Status:</b> ${escapeHTML(d.status)}</p>
+        <button class="primary" id="closeDetails">Close</button>
+      </div>
+    </div>
+  `;
+
+        $("closeDetails").onclick = closeModal;
+    }
+
+    function closeModal() {
+        $("modalRoot").innerHTML = "";
+    }
+
+    renderPage("dashboard");
+</script>
+</body>
+</html>

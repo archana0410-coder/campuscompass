@@ -1,0 +1,4 @@
+INSERT INTO document (title, category, content) VALUES ('Engineering Mathematics Notes', 'Study materials', 'You can find your subject notes in the digital library portal or department shared drive.');
+INSERT INTO document (title, category, content) VALUES ('Semester Exam Circular', 'Announcements', 'The latest college circular regarding end-semester examinations has been posted on the notice board.');
+INSERT INTO document (title, category, content) VALUES ('Computer Science Department', 'Campus information', 'The Computer Science Department is located in the Main Engineering Block, 2nd Floor.');
+INSERT INTO document (title, category, content) VALUES ('Lab Manual Retrieval', 'Document retrieval', 'You can quickly find specific college documents by searching through the CampusCompass search bar.');
